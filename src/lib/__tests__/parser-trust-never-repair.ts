@@ -1,4 +1,4 @@
-﻿import { describe, it } from 'node:test';
+import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { parseRecipients, isLikelyEmail } from '../parser';
 
@@ -120,13 +120,17 @@ describe('SendPrep Parser Trust Boundary --- Never Repair Invariants', () => {
       assert.equal(res.recipients.length, 0, 'Ambiguous segment must not silently produce Ready recipients');
     });
 
-    it('[TRUST-E2] differing mailto addresses do not silently merge', () => {
+    it('[TRUST-E2] differing [mailto:] addresses are treated as ambiguous — not collapsed, not silently admitted', () => {
       const res = parseRecipients('alice@example.com [mailto:bob@example.com]');
+      // IDENTICAL REPRESENTATIONS MAY COLLAPSE. DIFFERENT ADDRESSES MUST REMAIN AMBIGUOUS.
+      // alice@example.com != bob@example.com, so no collapse must occur.
+      assert.equal(res.recipients.length, 0, 'Neither address may be silently admitted as Ready');
+      assert.equal(res.reviewItems.length, 1, 'Must produce exactly one review item');
+      assert.equal(res.reviewItems[0].reason, 'multiple_addresses_in_segment', 'Must flag as multiple addresses, not collapse');
+      // Prove neither specific address silently escaped into Ready
       const readyEmails = res.recipients.map((r) => r.normalizedEmail);
-      assert.ok(
-        !readyEmails.includes('bob@example.com') || readyEmails.includes('alice@example.com'),
-        'Differing addresses must not silently merge to only the mailto address'
-      );
+      assert.equal(readyEmails.includes('alice@example.com'), false, 'alice@example.com must not be silently admitted');
+      assert.equal(readyEmails.includes('bob@example.com'), false, 'bob@example.com must not be silently admitted');
     });
   });
 
