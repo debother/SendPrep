@@ -79,3 +79,9 @@ Running `npm run build` compiles the application into static client assets locat
 The `dist/` directory contains standard static files (`index.html`, JavaScript chunks, CSS) suitable for direct deployment to any static web host, CDN, or static file server (such as Cloudflare Pages, GitHub Pages, Netlify, Vercel, AWS S3, or Nginx).
 
 *(Note: `npm run preview` is a local testing utility and should not be used as a production server).*
+
+---
+
+## License
+
+SendPrep is open source software released under the [MIT License](LICENSE).
