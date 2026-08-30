@@ -41,7 +41,7 @@ export const App: React.FC = () => {
               Paste the mess. Prep the send.
             </h2>
             <p className="text-xs sm:text-sm text-stone-600 max-w-lg mx-auto leading-relaxed">
-              Paste messy email recipients and turn them into a clean, deduplicated list ready for review and copy.
+              Clean up messy email recipient lists. Remove duplicates, review uncertain entries, and copy the result.
             </p>
             <div className="pt-2 flex items-center justify-center gap-2 text-xs font-mono text-stone-400 select-none">
               <span>Paste</span>
