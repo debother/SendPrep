@@ -1,12 +1,14 @@
 import { useState, useMemo, useCallback } from 'react';
-import { parseRecipients } from '../lib/parser';
+import { parseRecipients, isLikelyEmail } from '../lib/parser';
 import { formatRecipients } from '../lib/formatter';
 import type { CleanRecipient, OutputFormat } from '../types/parser';
 
 export interface CopyNotification {
+  success: boolean;
   copiedCount: number;
   unresolvedCount: number;
   timestamp: number;
+  errorMessage?: string;
 }
 
 export function useSendPrep() {
@@ -93,15 +95,21 @@ export function useSendPrep() {
     reviewItemId: string,
     email: string,
     displayName?: string
-  ) => {
-    const norm = email.trim().toLowerCase();
+  ): boolean => {
+    const trimmedEmail = email.trim();
+    // Conservative syntax check must be satisfied to cross trust boundary into Ready list
+    if (!isLikelyEmail(trimmedEmail)) {
+      return false;
+    }
+
+    const norm = trimmedEmail.toLowerCase();
     const newRec: CleanRecipient = {
       id: `manual-${norm}-${Date.now()}`,
-      email: email.trim(),
+      email: trimmedEmail,
       normalizedEmail: norm,
       displayName: displayName?.trim() ? displayName.trim() : undefined,
       occurrences: [{
-        sourceText: displayName ? `${displayName} <${email}>` : email,
+        sourceText: displayName ? `${displayName} <${trimmedEmail}>` : trimmedEmail,
         sourceRange: [0, 0],
         rawDisplayName: displayName,
       }],
@@ -110,6 +118,7 @@ export function useSendPrep() {
 
     setManuallyResolvedRecipients(prev => [...prev, newRec]);
     setDismissedItemIds(prev => new Set(prev).add(reviewItemId));
+    return true;
   }, []);
 
   const dismissReviewItem = useCallback((reviewItemId: string) => {
@@ -125,18 +134,23 @@ export function useSendPrep() {
       setResolvedNames(prev => ({ ...prev, [recipientId]: newName }));
     }
     if (newEmail !== undefined) {
-      setManuallyResolvedRecipients(prev =>
-        prev.map(r => r.id === recipientId ? { ...r, email: newEmail, normalizedEmail: newEmail.trim().toLowerCase() } : r)
-      );
+      const trimmedNewEmail = newEmail.trim();
+      if (isLikelyEmail(trimmedNewEmail)) {
+        setManuallyResolvedRecipients(prev =>
+          prev.map(r => r.id === recipientId ? { ...r, email: trimmedNewEmail, normalizedEmail: trimmedNewEmail.toLowerCase() } : r)
+        );
+      }
     }
   }, []);
 
-  const copyToClipboard = useCallback(async () => {
-    if (!formattedOutput) return;
+  const copyToClipboard = useCallback(async (): Promise<boolean> => {
+    if (!formattedOutput) return false;
 
+    let succeeded = false;
     try {
       if (navigator?.clipboard?.writeText) {
         await navigator.clipboard.writeText(formattedOutput);
+        succeeded = true;
       } else {
         const textarea = document.createElement('textarea');
         textarea.value = formattedOutput;
@@ -145,17 +159,30 @@ export function useSendPrep() {
         document.body.appendChild(textarea);
         textarea.focus();
         textarea.select();
-        document.execCommand('copy');
+        succeeded = document.execCommand('copy');
         document.body.removeChild(textarea);
       }
+    } catch {
+      succeeded = false;
+    }
 
+    if (succeeded) {
       setCopyNotification({
+        success: true,
         copiedCount: cleanRecipients.length,
         unresolvedCount: activeReviewItems.length,
         timestamp: Date.now(),
       });
-    } catch (err) {
-      console.error('Failed to copy to clipboard', err);
+      return true;
+    } else {
+      setCopyNotification({
+        success: false,
+        copiedCount: 0,
+        unresolvedCount: activeReviewItems.length,
+        timestamp: Date.now(),
+        errorMessage: 'Copy failed. Select the output and copy it manually.',
+      });
+      return false;
     }
   }, [formattedOutput, cleanRecipients.length, activeReviewItems.length]);
 

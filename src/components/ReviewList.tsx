@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import type { ReviewItem } from '../types/parser';
-import { HelpCircle, Check, X, User, Edit3 } from 'lucide-react';
+import { isLikelyEmail } from '../lib/parser';
+import { HelpCircle, Check, X, User, Edit3, AlertCircle } from 'lucide-react';
 
 interface ReviewListProps {
   items: ReviewItem[];
   onResolveDisplayName: (reviewItemId: string, recipientId: string, chosenName: string) => void;
-  onResolveAsRecipient: (reviewItemId: string, email: string, displayName?: string) => void;
+  onResolveAsRecipient: (reviewItemId: string, email: string, displayName?: string) => boolean | void;
   onDismiss: (reviewItemId: string) => void;
 }
 
@@ -18,6 +19,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({
   const [editingItemId, setEditingItemId] = useState<string | null>(null);
   const [customName, setCustomName] = useState<string>('');
   const [customEmail, setCustomEmail] = useState<string>('');
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   if (items.length === 0) {
     return null;
@@ -27,15 +29,40 @@ export const ReviewList: React.FC<ReviewListProps> = ({
     setEditingItemId(item.id);
     setCustomName(item.suggestedName || '');
     setCustomEmail(item.suggestedEmail || (item.originalText.includes('@') ? item.originalText : ''));
+    setValidationError(null);
   };
 
   const handleCustomSubmit = (item: ReviewItem) => {
     if (item.reason === 'conflicting_display_names' && item.associatedRecipientId) {
       onResolveDisplayName(item.id, item.associatedRecipientId, customName);
-    } else if (customEmail.trim()) {
-      onResolveAsRecipient(item.id, customEmail.trim(), customName.trim() || undefined);
+      setEditingItemId(null);
+      setValidationError(null);
+    } else {
+      const emailToValidate = customEmail.trim();
+      if (!isLikelyEmail(emailToValidate)) {
+        setValidationError('That address still looks incomplete or malformed.');
+        return;
+      }
+
+      const result = onResolveAsRecipient(item.id, emailToValidate, customName.trim() || undefined);
+      if (result === false) {
+        setValidationError('That address still looks incomplete or malformed.');
+        return;
+      }
+
+      setEditingItemId(null);
+      setValidationError(null);
     }
-    setEditingItemId(null);
+  };
+
+  const handleQuickAdd = (item: ReviewItem) => {
+    if (item.suggestedEmail) {
+      const result = onResolveAsRecipient(item.id, item.suggestedEmail, item.suggestedName);
+      if (result === false) {
+        startEditing(item);
+        setValidationError('That address still looks incomplete or malformed.');
+      }
+    }
   };
 
   const getBadgeLabel = (reason: ReviewItem['reason']) => {
@@ -151,7 +178,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                 {item.suggestedEmail && (
                   <button
                     type="button"
-                    onClick={() => onResolveAsRecipient(item.id, item.suggestedEmail!, item.suggestedName)}
+                    onClick={() => handleQuickAdd(item)}
                     className="px-2.5 py-1 rounded-md bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium transition-colors flex items-center gap-1.5"
                   >
                     <Check className="w-3 h-3" />
@@ -210,7 +237,10 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                       <input
                         type="text"
                         value={customEmail}
-                        onChange={(e) => setCustomEmail(e.target.value)}
+                        onChange={(e) => {
+                          setCustomEmail(e.target.value);
+                          if (validationError) setValidationError(null);
+                        }}
                         placeholder="e.g. jane@example.com"
                         required
                         className="w-full px-2.5 py-1 bg-white border border-stone-300 rounded text-xs text-stone-900 focus:outline-hidden focus:ring-1 focus:ring-stone-900 font-mono"
@@ -218,10 +248,21 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                     </div>
                   )}
                 </div>
+
+                {validationError && (
+                  <div className="flex items-center gap-1.5 text-xs text-amber-800 bg-amber-50 p-2 rounded border border-amber-200">
+                    <AlertCircle className="w-3.5 h-3.5 shrink-0 text-amber-700" />
+                    <span>{validationError}</span>
+                  </div>
+                )}
+
                 <div className="flex items-center gap-2 justify-end pt-1">
                   <button
                     type="button"
-                    onClick={() => setEditingItemId(null)}
+                    onClick={() => {
+                      setEditingItemId(null);
+                      setValidationError(null);
+                    }}
                     className="px-2.5 py-1 rounded bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs"
                   >
                     Cancel

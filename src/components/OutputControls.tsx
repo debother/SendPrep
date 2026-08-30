@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { OutputFormat } from '../types/parser';
 import type { CopyNotification } from '../hooks/useSendPrep';
-import { Copy, Check, Info, Eye, EyeOff } from 'lucide-react';
+import { Copy, Check, Info, Eye, EyeOff, AlertCircle } from 'lucide-react';
 
 interface OutputControlsProps {
   recipientCount: number;
@@ -10,7 +10,7 @@ interface OutputControlsProps {
   unresolvedCount: number;
   copyNotification: CopyNotification | null;
   onFormatChange: (fmt: OutputFormat) => void;
-  onCopy: () => void;
+  onCopy: () => Promise<boolean> | void;
 }
 
 export const OutputControls: React.FC<OutputControlsProps> = ({
@@ -25,12 +25,16 @@ export const OutputControls: React.FC<OutputControlsProps> = ({
   const [showPreview, setShowPreview] = useState<boolean>(true);
   const [justCopied, setJustCopied] = useState<boolean>(false);
 
-  const handleCopyClick = () => {
-    onCopy();
-    setJustCopied(true);
-    setTimeout(() => {
+  const handleCopyClick = async () => {
+    const result = await onCopy();
+    if (result !== false) {
+      setJustCopied(true);
+      setTimeout(() => {
+        setJustCopied(false);
+      }, 2500);
+    } else {
       setJustCopied(false);
-    }, 2500);
+    }
   };
 
   const mailClientFormats: Array<{ id: OutputFormat; label: string; desc: string }> = [
@@ -167,29 +171,42 @@ export const OutputControls: React.FC<OutputControlsProps> = ({
 
       {/* Screen Reader Announcement */}
       <div aria-live="polite" className="sr-only">
-        {copyNotification && `Copied ${copyNotification.copiedCount} recipients.`}
+        {copyNotification && copyNotification.success && `Copied ${copyNotification.copiedCount} recipients.`}
+        {copyNotification && !copyNotification.success && 'Copy failed.'}
       </div>
 
       {/* Non-intrusive feedback banner */}
       {copyNotification && (
         <div className={`p-3 rounded-lg text-xs flex items-start gap-2.5 transition-all ${
-          copyNotification.unresolvedCount > 0
-            ? 'bg-amber-50 border border-amber-200 text-amber-900'
-            : 'bg-stone-100 border border-stone-200 text-stone-800'
+          !copyNotification.success
+            ? 'bg-red-50 border border-red-200 text-red-900'
+            : copyNotification.unresolvedCount > 0
+              ? 'bg-amber-50 border border-amber-200 text-amber-900'
+              : 'bg-stone-100 border border-stone-200 text-stone-800'
         }`}>
-          {copyNotification.unresolvedCount > 0 ? (
+          {!copyNotification.success ? (
+            <AlertCircle className="w-4 h-4 text-red-700 shrink-0 mt-0.5" />
+          ) : copyNotification.unresolvedCount > 0 ? (
             <Info className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
           ) : (
             <Check className="w-4 h-4 text-stone-700 shrink-0 mt-0.5" />
           )}
           <div>
-            <span className="font-semibold">
-              Copied {copyNotification.copiedCount} {copyNotification.copiedCount === 1 ? 'recipient' : 'recipients'}.
-            </span>
-            {copyNotification.unresolvedCount > 0 && (
-              <span className="block text-amber-800 mt-0.5">
-                Note: {copyNotification.unresolvedCount} {copyNotification.unresolvedCount === 1 ? 'item still needs' : 'items still need'} review and was not copied.
+            {!copyNotification.success ? (
+              <span className="font-semibold">
+                Copy failed. Select the output and copy it manually.
               </span>
+            ) : (
+              <>
+                <span className="font-semibold">
+                  Copied {copyNotification.copiedCount} {copyNotification.copiedCount === 1 ? 'recipient' : 'recipients'}.
+                </span>
+                {copyNotification.unresolvedCount > 0 && (
+                  <span className="block text-amber-800 mt-0.5">
+                    Note: {copyNotification.unresolvedCount} {copyNotification.unresolvedCount === 1 ? 'item still needs' : 'items still need'} review and was not copied.
+                  </span>
+                )}
+              </>
             )}
           </div>
         </div>

@@ -64,8 +64,20 @@ export function isLikelyEmail(str: string): boolean {
 }
 
 /**
+ * Safe URI component decoding that fails closed without throwing URIError
+ */
+export function safeDecodeURIComponent(str: string): { decoded: string; isMalformed: boolean } {
+  try {
+    return { decoded: decodeURIComponent(str.replace(/\+/g, ' ')), isMalformed: false };
+  } catch {
+    // Fail-closed fallback: preserve original text without throwing
+    return { decoded: str, isMalformed: true };
+  }
+}
+
+/**
  * Parses mailto: URIs, extracting the primary recipient, any recipient-bearing
- * query parameters (to, cc, bcc), and preserving non-recipient query parameters
+ * query parameters (to, cc, bcc), and preserving non-recipient or malformed query parameters
  * for Needs Review to respect the Completeness Invariant.
  */
 function parseMailtoUri(mailtoStr: string): ExtractedCandidate {
@@ -78,7 +90,8 @@ function parseMailtoUri(mailtoStr: string): ExtractedCandidate {
     text = text.slice(0, qIdx).trim();
   }
 
-  const primaryEmail = text ? text : undefined;
+  const safePrimary = safeDecodeURIComponent(text);
+  const primaryEmail = safePrimary.decoded.trim() ? safePrimary.decoded.trim() : undefined;
   const extraRecipients: Array<{ email: string; displayName?: string; sourceText: string }> = [];
   const unhandledParams: string[] = [];
 
@@ -87,26 +100,36 @@ function parseMailtoUri(mailtoStr: string): ExtractedCandidate {
     for (const param of params) {
       if (!param.trim()) continue;
       const eqIdx = param.indexOf('=');
-      const key = (eqIdx !== -1 ? param.slice(0, eqIdx) : param).toLowerCase().trim();
-      const val = eqIdx !== -1 ? decodeURIComponent(param.slice(eqIdx + 1).replace(/\+/g, ' ')).trim() : '';
+      const rawKey = eqIdx !== -1 ? param.slice(0, eqIdx) : param;
+      const rawVal = eqIdx !== -1 ? param.slice(eqIdx + 1) : '';
+
+      const safeKey = safeDecodeURIComponent(rawKey);
+      const safeVal = safeDecodeURIComponent(rawVal);
+
+      const key = safeKey.decoded.toLowerCase().trim();
+      const val = safeVal.decoded.trim();
 
       if (['to', 'cc', 'bcc'].includes(key) && val) {
-        // May contain comma-separated recipients
-        const subTokens = tokenizeInput(val);
-        for (const subToken of subTokens) {
-          const parsedSub = parseTokenSegment(subToken.text);
-          if (parsedSub.email && isLikelyEmail(parsedSub.email)) {
-            extraRecipients.push({
-              email: parsedSub.email,
-              displayName: parsedSub.displayName,
-              sourceText: `${key}=${subToken.text}`,
-            });
-          } else if (subToken.text.trim()) {
-            unhandledParams.push(`${key}=${subToken.text}`);
+        if (safeVal.isMalformed) {
+          unhandledParams.push(`${key}=${rawVal}`);
+        } else {
+          // May contain comma-separated recipients
+          const subTokens = tokenizeInput(val);
+          for (const subToken of subTokens) {
+            const parsedSub = parseTokenSegment(subToken.text);
+            if (parsedSub.email && isLikelyEmail(parsedSub.email)) {
+              extraRecipients.push({
+                email: parsedSub.email,
+                displayName: parsedSub.displayName,
+                sourceText: `${key}=${subToken.text}`,
+              });
+            } else if (subToken.text.trim()) {
+              unhandledParams.push(`${key}=${subToken.text}`);
+            }
           }
         }
       } else {
-        const decodedParam = eqIdx !== -1 ? `${key}=${val}` : key;
+        const decodedParam = eqIdx !== -1 ? `${key}=${safeVal.isMalformed ? rawVal : val}` : key;
         unhandledParams.push(decodedParam);
       }
     }
