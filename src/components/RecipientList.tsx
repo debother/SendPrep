@@ -43,7 +43,7 @@ export const RecipientList: React.FC<RecipientListProps> = ({
   return (
     <section
       className="bg-white border border-stone-200/90 rounded-xl p-4 sm:p-5 space-y-3 shadow-2xs"
-      aria-labelledby="verified-recipients-heading"
+      aria-labelledby="ready-recipients-heading"
     >
       <div className="flex items-center justify-between">
         <button
@@ -52,8 +52,8 @@ export const RecipientList: React.FC<RecipientListProps> = ({
           className="flex items-center gap-2 text-left hover:text-stone-900 transition-colors"
           aria-expanded={isOpen}
         >
-          <h2 id="verified-recipients-heading" className="text-sm font-bold text-stone-900">
-            Verified Recipients ({recipients.length})
+          <h2 id="ready-recipients-heading" className="text-sm font-bold text-stone-900">
+            Ready Recipients ({recipients.length})
           </h2>
           <span className="text-xs text-stone-500 font-normal">
             · Deduplicated evidence

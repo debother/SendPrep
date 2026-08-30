@@ -83,7 +83,7 @@ export const App: React.FC = () => {
               onCopy={copyToClipboard}
             />
 
-            {/* 4. Verified Recipients (Evidence Drawer) */}
+            {/* 4. Ready Recipients (Evidence Drawer) */}
             <RecipientList
               recipients={cleanRecipients}
               onDeleteRecipient={deleteRecipient}
