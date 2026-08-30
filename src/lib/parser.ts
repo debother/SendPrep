@@ -37,6 +37,8 @@ export function cleanDisplayName(name: string): string {
  * - Must contain exactly one '@' (unless quoted local part)
  * - Non-empty local part and domain part
  * - No whitespace in either part
+ * - Domain must not start or end with a dot or hyphen
+ * - Domain must not contain consecutive dots (..)
  * Does NOT enforce restrictive TLD lists or public suffix rules.
  */
 export function isLikelyEmail(str: string): boolean {
@@ -55,8 +57,12 @@ export function isLikelyEmail(str: string): boolean {
   const domainPart = trimmed.slice(atIdx + 1);
 
   if (!localPart || !domainPart) return false;
-  // Domain should not start or end with dot or hyphen
+  // Domain must not start or end with dot or hyphen
   if (domainPart.startsWith('.') || domainPart.endsWith('.') || domainPart.startsWith('-') || domainPart.endsWith('-')) {
+    return false;
+  }
+  // Domain must not contain consecutive dots (e.g. gmx..de is structurally malformed)
+  if (domainPart.includes('..')) {
     return false;
   }
 
@@ -217,6 +223,21 @@ export function parseTokenSegment(tokenText: string): ExtractedCandidate {
     }
   }
 
+  // Detect and collapse redundant [mailto:email] suffixes that are identical to a plain leading email.
+  // Example: "support@web-app.com [mailto:support@web-app.com]" is redundant representation, not two addresses.
+  // Equality is checked deterministically by case-insensitive trim — no fuzzy matching.
+  // If the addresses differ in any way, the segment is left intact and falls through to the multi-@ check.
+  const redundantMailtoMatch = text.match(/^([^\s\[]+)\s+\[mailto:([^\]]+)\]$/i);
+  if (redundantMailtoMatch) {
+    const leadingPart = redundantMailtoMatch[1].trim();
+    const mailtoAddr = redundantMailtoMatch[2].trim();
+    if (leadingPart.toLowerCase() === mailtoAddr.toLowerCase() && isLikelyEmail(leadingPart)) {
+      // Deterministic equality: both representations resolve to the same address.
+      return { email: leadingPart };
+    }
+    // Addresses differ or are malformed — fall through to standard handling.
+  }
+
   // Check for multiple email addresses in one segment without delimiters (e.g. space-separated)
   const atCount = (text.match(/@/g) || []).length;
   if (atCount > 1 && !text.startsWith('"')) {
@@ -225,6 +246,7 @@ export function parseTokenSegment(tokenText: string): ExtractedCandidate {
       errorDescription: 'Multiple email addresses found in a single segment without delimiter',
     };
   }
+
 
   // Pattern 1: Name <email> or <email> (with optional trailing "wrote:")
   const angleMatch = text.match(/^(.*?)\s*<([^>]+)>\s*(?:wrote:?)?$/i);
@@ -298,7 +320,8 @@ export function parseTokenSegment(tokenText: string): ExtractedCandidate {
 }
 
 /**
- * Validates syntax of an email string and assigns specific review reasons
+ * Validates syntax of an email string and assigns specific review reasons.
+ * Never repairs or rewrites addresses — original text is preserved as-is.
  */
 function validateEmailSyntax(rawEmail: string, displayName?: string): ExtractedCandidate {
   if (!rawEmail.includes('@')) {
@@ -309,11 +332,30 @@ function validateEmailSyntax(rawEmail: string, displayName?: string): ExtractedC
     };
   }
 
-  const [, domain] = rawEmail.split('@');
+  const atIdx = rawEmail.indexOf('@');
+  const domain = rawEmail.slice(atIdx + 1);
+
   if (!domain || domain.trim().length === 0) {
     return {
       errorReason: 'missing_domain',
       errorDescription: 'Missing domain in email address',
+      email: rawEmail,
+      displayName,
+    };
+  }
+
+  // Detect structural domain problems: consecutive dots, leading/trailing dot or hyphen
+  const domainTrimmed = domain.trim();
+  if (
+    domainTrimmed.includes('..') ||
+    domainTrimmed.startsWith('.') ||
+    domainTrimmed.endsWith('.') ||
+    domainTrimmed.startsWith('-') ||
+    domainTrimmed.endsWith('-')
+  ) {
+    return {
+      errorReason: 'malformed_domain',
+      errorDescription: 'Malformed domain in email address',
       email: rawEmail,
       displayName,
     };

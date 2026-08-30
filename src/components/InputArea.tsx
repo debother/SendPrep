@@ -96,7 +96,7 @@ Jane Doe <JANE@example.com>`}
       />
 
       <div className="flex items-center justify-between text-xs text-stone-400 pt-0.5">
-        <span>Nothing uncertain is silently discarded.</span>
+        <span>Nothing uncertain is silently discarded. Email addresses are never corrected or rewritten. If something looks wrong, SendPrep sends it to Review instead.</span>
         <span>{value.length} characters</span>
       </div>
     </div>
