@@ -14,9 +14,14 @@ export const Header: React.FC = () => {
               <span className="text-sm font-bold tracking-tight text-stone-900 leading-none">
                 SendPrep
               </span>
-              <span className="hidden sm:inline text-xs text-stone-500 font-normal">
-                Paste the mess. Prep the send.
-              </span>
+              <a
+                href="https://debother.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-stone-400 hover:text-stone-700 transition-colors font-mono"
+              >
+                by debother
+              </a>
             </div>
           </div>
         </div>

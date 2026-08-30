@@ -1,5 +1,6 @@
 import { useSendPrep } from './hooks/useSendPrep';
 import { Header } from './components/Header';
+import { Footer } from './components/Footer';
 import { InputArea } from './components/InputArea';
 import { MetricsBar } from './components/MetricsBar';
 import { ReviewList } from './components/ReviewList';
@@ -42,6 +43,13 @@ export const App: React.FC = () => {
             <p className="text-xs sm:text-sm text-stone-600 max-w-lg mx-auto leading-relaxed">
               Paste messy email recipients and turn them into a clean, deduplicated list ready for review and copy.
             </p>
+            <div className="pt-2 flex items-center justify-center gap-2 text-xs font-mono text-stone-400 select-none">
+              <span>Paste</span>
+              <span>→</span>
+              <span>Review</span>
+              <span>→</span>
+              <span>Copy</span>
+            </div>
           </div>
         )}
 
@@ -93,11 +101,7 @@ export const App: React.FC = () => {
         )}
       </main>
 
-      <footer className="border-t border-stone-200/70 py-4 text-center text-xs text-stone-500 mt-auto bg-white/40">
-        <div className="max-w-4xl mx-auto px-4">
-          Your recipient data is processed locally in your browser and is not uploaded by SendPrep.
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };
