@@ -1,6 +1,7 @@
 export type ReviewReason =
   | 'conflicting_display_names'
   | 'malformed_email'
+  | 'malformed_domain'
   | 'missing_domain'
   | 'missing_at_symbol'
   | 'broken_angle_brackets'
