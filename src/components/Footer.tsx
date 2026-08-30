@@ -7,7 +7,7 @@ export const Footer: React.FC = () => {
         <div>
           <span>Your recipient data is processed locally in your browser and is not uploaded by SendPrep.</span>
         </div>
-        <nav className="flex items-center gap-3 font-mono text-stone-500" aria-label="Footer navigation">
+        <nav className="flex items-center justify-center flex-wrap gap-x-2.5 gap-y-1 font-mono text-stone-500" aria-label="Footer navigation">
           <a
             href="https://debother.com"
             target="_blank"
@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
           >
             debother.
           </a>
-          <span aria-hidden="true" className="text-stone-300">·</span>
+          <span aria-hidden="true" className="text-stone-300 select-none">·</span>
           <a
             href="https://debother.com/imprint/"
             target="_blank"
@@ -25,7 +25,7 @@ export const Footer: React.FC = () => {
           >
             Impressum
           </a>
-          <span aria-hidden="true" className="text-stone-300">·</span>
+          <span aria-hidden="true" className="text-stone-300 select-none">·</span>
           <a
             href="https://debother.com/privacy/"
             target="_blank"
@@ -34,7 +34,7 @@ export const Footer: React.FC = () => {
           >
             Privacy
           </a>
-          <span aria-hidden="true" className="text-stone-300">·</span>
+          <span aria-hidden="true" className="text-stone-300 select-none">·</span>
           <a
             href="https://github.com/debother/SendPrep"
             target="_blank"
@@ -43,7 +43,7 @@ export const Footer: React.FC = () => {
           >
             GitHub
           </a>
-          <span aria-hidden="true" className="text-stone-300">·</span>
+          <span aria-hidden="true" className="text-stone-300 select-none">·</span>
           <a
             href="https://github.com/debother/SendPrep/blob/main/LICENSE"
             target="_blank"
