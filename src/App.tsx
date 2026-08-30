@@ -30,7 +30,7 @@ export const App: React.FC = () => {
   const hasContent = rawInput.trim().length > 0;
 
   return (
-    <div className="min-h-screen bg-[#fbfbf9] text-stone-900 flex flex-col font-sans">
+    <div className="min-h-screen bg-[#f7f5ef] text-stone-900 flex flex-col font-sans">
       <Header />
 
       <main className="flex-1 max-w-4xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 space-y-4">

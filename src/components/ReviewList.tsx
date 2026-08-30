@@ -174,7 +174,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                   <button
                     type="button"
                     onClick={() => handleQuickAdd(item)}
-                    className="px-2.5 py-1 rounded bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium transition-colors flex items-center gap-1.5"
+                    className="px-2.5 py-1 rounded bg-[#FF6B4A] hover:bg-[#ea5533] text-white text-xs font-medium transition-colors flex items-center gap-1.5"
                   >
                     <Check className="w-3 h-3" />
                     <span>
@@ -264,7 +264,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                   </button>
                   <button
                     type="submit"
-                    className="px-3 py-1 rounded bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium flex items-center gap-1"
+                    className="px-3 py-1 rounded bg-[#FF6B4A] hover:bg-[#ea5533] text-white text-xs font-medium flex items-center gap-1"
                   >
                     <Check className="w-3 h-3" />
                     <span>Apply</span>

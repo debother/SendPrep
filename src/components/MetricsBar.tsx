@@ -21,7 +21,7 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
       {/* Primary Outcome & Quiet Merged Work */}
       <div className="flex items-center gap-2.5 flex-wrap">
         <div className="flex items-center gap-2 text-stone-900">
-          <div className="w-5 h-5 rounded-full bg-stone-900 text-white flex items-center justify-center shrink-0">
+          <div className="w-5 h-5 rounded-full bg-[#FF6B4A] text-white flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-3.5 h-3.5" />
           </div>
           <span className="text-sm sm:text-base font-bold tracking-tight">

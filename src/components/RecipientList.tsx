@@ -104,7 +104,7 @@ export const RecipientList: React.FC<RecipientListProps> = ({
                   />
                   <button
                     type="submit"
-                    className="p-1 rounded bg-stone-900 text-white hover:bg-stone-800"
+                    className="p-1 rounded bg-[#FF6B4A] text-white hover:bg-[#ea5533]"
                     title="Save"
                   >
                     <Check className="w-3.5 h-3.5" />

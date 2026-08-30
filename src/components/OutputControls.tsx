@@ -86,12 +86,12 @@ export const OutputControls: React.FC<OutputControlsProps> = ({
               onClick={() => onFormatChange(fmt.id)}
               className={`p-2.5 rounded-lg text-left border transition-all ${
                 isSelected
-                  ? 'bg-stone-900 text-white border-stone-900 shadow-xs'
-                  : 'bg-stone-50/80 hover:bg-stone-100 text-stone-700 border-stone-200/80'
+                  ? 'bg-[#ffd9cf] text-[#171717] border-[#FF6B4A] shadow-2xs font-semibold ring-1 ring-[#FF6B4A]/50'
+                  : 'bg-stone-50/80 hover:bg-stone-100/90 text-stone-700 border-stone-200/80'
               }`}
             >
-              <div className="text-xs font-semibold">{fmt.label}</div>
-              <div className={`text-xs mt-0.5 ${isSelected ? 'text-stone-300' : 'text-stone-500'}`}>
+              <div className="text-xs font-semibold text-stone-900">{fmt.label}</div>
+              <div className="text-xs mt-0.5 text-stone-600">
                 {fmt.desc}
               </div>
             </button>
@@ -119,9 +119,9 @@ export const OutputControls: React.FC<OutputControlsProps> = ({
           type="button"
           onClick={handleCopyClick}
           disabled={recipientCount === 0}
-          className={`w-full py-3.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
+          className={`w-full py-3.5 px-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#171717] ${
             recipientCount > 0
-              ? 'bg-stone-900 hover:bg-stone-800 active:scale-[0.99] text-white shadow-xs cursor-pointer'
+              ? 'bg-[#FF6B4A] hover:bg-[#ea5533] active:translate-y-px text-white shadow-xs cursor-pointer'
               : 'bg-stone-100 text-stone-400 border border-stone-200 cursor-not-allowed'
           }`}
         >
