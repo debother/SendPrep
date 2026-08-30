@@ -1,5 +1,5 @@
 import React from 'react';
-import { Trash2, Sparkles } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 
 interface InputAreaProps {
   value: string;
@@ -34,7 +34,7 @@ export const InputArea: React.FC<InputAreaProps> = ({
     <div className="bg-white border border-stone-200/90 rounded-xl p-4 sm:p-5 space-y-3 shadow-2xs">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
-          <label htmlFor="pasted-input" className="text-sm font-semibold text-stone-900 block">
+          <label htmlFor="pasted-input" className="text-sm font-bold text-stone-900 block">
             Recipient Input
           </label>
           <p className="text-xs text-stone-500 mt-0.5">
@@ -44,28 +44,27 @@ export const InputArea: React.FC<InputAreaProps> = ({
 
         {/* Samples & Clear */}
         <div className="flex items-center gap-1.5 flex-wrap">
-          <span className="text-[11px] font-medium text-stone-400 mr-0.5 flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-stone-400" />
-            Try:
+          <span className="text-xs font-medium text-stone-400 mr-0.5">
+            Sample:
           </span>
           <button
             type="button"
             onClick={() => onChange(SAMPLE_MIXED)}
-            className="px-2 py-0.5 rounded bg-stone-100 hover:bg-stone-200 text-[11px] font-medium text-stone-700 transition-colors"
+            className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-xs font-medium text-stone-700 transition-colors"
           >
             Duplicates & Mix
           </button>
           <button
             type="button"
             onClick={() => onChange(SAMPLE_OUTLOOK)}
-            className="px-2 py-0.5 rounded bg-stone-100 hover:bg-stone-200 text-[11px] font-medium text-stone-700 transition-colors"
+            className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-xs font-medium text-stone-700 transition-colors"
           >
             Outlook Headers
           </button>
           <button
             type="button"
             onClick={() => onChange(SAMPLE_SPREADSHEET)}
-            className="px-2 py-0.5 rounded bg-stone-100 hover:bg-stone-200 text-[11px] font-medium text-stone-700 transition-colors"
+            className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-xs font-medium text-stone-700 transition-colors"
           >
             Spreadsheet Tabs
           </button>
@@ -73,10 +72,10 @@ export const InputArea: React.FC<InputAreaProps> = ({
             <button
               type="button"
               onClick={onClear}
-              className="px-2 py-0.5 rounded bg-stone-100 hover:bg-red-50 text-[11px] font-medium text-stone-600 hover:text-red-600 transition-colors flex items-center gap-1 ml-1"
+              className="px-2.5 py-1 rounded bg-stone-100 hover:bg-red-50 text-xs font-medium text-stone-600 hover:text-red-600 transition-colors flex items-center gap-1 ml-1"
               title="Clear input"
             >
-              <Trash2 className="w-3 h-3" />
+              <Trash2 className="w-3.5 h-3.5" />
               <span>Clear</span>
             </button>
           )}
@@ -92,11 +91,11 @@ export const InputArea: React.FC<InputAreaProps> = ({
 john@example.com;
 Jane Doe <JANE@example.com>`}
         rows={6}
-        className="w-full p-3 bg-stone-50/50 border border-stone-200 rounded-lg font-mono text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-stone-900 transition-colors resize-y leading-relaxed"
+        className="w-full p-3.5 bg-stone-50/60 border border-stone-200 rounded-lg font-mono text-xs sm:text-sm text-stone-900 placeholder:text-stone-400 focus:bg-white focus:outline-hidden focus:ring-1 focus:ring-stone-900 transition-colors resize-y leading-relaxed"
         autoFocus
       />
 
-      <div className="flex items-center justify-between text-[11px] text-stone-400 pt-0.5">
+      <div className="flex items-center justify-between text-xs text-stone-400 pt-0.5">
         <span>Nothing uncertain is silently discarded.</span>
         <span>{value.length} characters</span>
       </div>

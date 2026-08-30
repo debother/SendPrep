@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, CopyCheck, AlertCircle } from 'lucide-react';
+import { CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface MetricsBarProps {
   recipientCount: number;
@@ -14,64 +14,37 @@ export const MetricsBar: React.FC<MetricsBarProps> = ({
 }) => {
   return (
     <div
-      className="grid grid-cols-3 gap-2.5 p-2.5 bg-stone-100/70 border border-stone-200/80 rounded-xl"
+      className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-3 bg-white border border-stone-200/90 rounded-xl shadow-2xs"
       role="region"
-      aria-label="Recipient statistics summary"
+      aria-label="Preparation status summary"
     >
-      {/* Ready Recipients */}
-      <div className="flex items-center gap-2.5 px-3 py-2 bg-white rounded-lg border border-stone-200/60 shadow-2xs">
-        <div className="p-1.5 bg-stone-100 rounded-md text-stone-800">
-          <CheckCircle2 className="w-3.5 h-3.5 text-stone-800" />
-        </div>
-        <div>
-          <div className="text-lg sm:text-xl font-bold tracking-tight text-stone-900 leading-none">
-            {recipientCount}
+      {/* Primary Outcome & Quiet Merged Work */}
+      <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2 text-stone-900">
+          <div className="w-5 h-5 rounded-full bg-stone-900 text-white flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-3.5 h-3.5" />
           </div>
-          <div className="text-[11px] font-medium text-stone-500 mt-0.5">
-            ready
-          </div>
+          <span className="text-sm sm:text-base font-bold tracking-tight">
+            {recipientCount} {recipientCount === 1 ? 'recipient ready' : 'recipients ready'}
+          </span>
         </div>
+
+        {duplicateCount > 0 && (
+          <div className="text-xs text-stone-500 font-medium pl-1 sm:border-l sm:border-stone-200 sm:pl-2.5">
+            {duplicateCount} {duplicateCount === 1 ? 'duplicate merged' : 'duplicates merged'}
+          </div>
+        )}
       </div>
 
-      {/* Duplicates Merged */}
-      <div className="flex items-center gap-2.5 px-3 py-2 bg-white rounded-lg border border-stone-200/60 shadow-2xs">
-        <div className="p-1.5 bg-stone-100 rounded-md text-stone-800">
-          <CopyCheck className="w-3.5 h-3.5 text-stone-800" />
+      {/* Review Call to Action (Only rendered prominently when reviewCount > 0) */}
+      {reviewCount > 0 && (
+        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-300 text-xs font-semibold text-amber-900 shrink-0 self-start sm:self-auto animate-in fade-in">
+          <AlertCircle className="w-3.5 h-3.5 text-amber-700 shrink-0" />
+          <span>
+            {reviewCount} {reviewCount === 1 ? 'item needs your decision' : 'items need your decision'}
+          </span>
         </div>
-        <div>
-          <div className="text-lg sm:text-xl font-bold tracking-tight text-stone-900 leading-none">
-            {duplicateCount}
-          </div>
-          <div className="text-[11px] font-medium text-stone-500 mt-0.5">
-            {duplicateCount === 1 ? 'duplicate merged' : 'duplicates merged'}
-          </div>
-        </div>
-      </div>
-
-      {/* Needs Review */}
-      <div className={`flex items-center gap-2.5 px-3 py-2 rounded-lg border shadow-2xs transition-colors ${
-        reviewCount > 0
-          ? 'bg-amber-50/80 border-amber-300/80 text-amber-950'
-          : 'bg-white border-stone-200/60 text-stone-900'
-      }`}>
-        <div className={`p-1.5 rounded-md ${
-          reviewCount > 0 ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-800'
-        }`}>
-          <AlertCircle className="w-3.5 h-3.5" />
-        </div>
-        <div>
-          <div className={`text-lg sm:text-xl font-bold tracking-tight leading-none ${
-            reviewCount > 0 ? 'text-amber-900' : 'text-stone-900'
-          }`}>
-            {reviewCount}
-          </div>
-          <div className={`text-[11px] font-medium mt-0.5 ${
-            reviewCount > 0 ? 'text-amber-800 font-semibold' : 'text-stone-500'
-          }`}>
-            {reviewCount === 1 ? 'needs review' : 'need review'}
-          </div>
-        </div>
-      </div>
+      )}
     </div>
   );
 };

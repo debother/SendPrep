@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { ReviewItem } from '../types/parser';
 import { isLikelyEmail } from '../lib/parser';
-import { HelpCircle, Check, X, User, Edit3, AlertCircle } from 'lucide-react';
+import { HelpCircle, Check, User, Edit3, AlertCircle } from 'lucide-react';
 
 interface ReviewListProps {
   items: ReviewItem[];
@@ -87,18 +87,18 @@ export const ReviewList: React.FC<ReviewListProps> = ({
 
   return (
     <section
-      className="bg-amber-50/40 border border-amber-200/70 rounded-xl p-4 sm:p-5 space-y-3.5"
-      aria-labelledby="needs-review-heading"
+      className="bg-amber-50/30 border border-amber-200/80 rounded-xl p-4 sm:p-5 space-y-3"
+      aria-labelledby="review-bench-heading"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-baseline justify-between gap-1 border-b border-amber-200/60 pb-2.5">
         <div className="flex items-center gap-2">
-          <HelpCircle className="w-4 h-4 text-amber-700" />
-          <h2 id="needs-review-heading" className="text-sm font-semibold text-amber-950">
-            Needs Review ({items.length})
+          <HelpCircle className="w-4 h-4 text-amber-800 shrink-0" />
+          <h2 id="review-bench-heading" className="text-sm font-bold text-amber-950">
+            Review Bench ({items.length})
           </h2>
         </div>
-        <p className="text-xs text-amber-800/90 hidden sm:block">
-          We aren't sure about these fragments. Pick, edit, or dismiss them.
+        <p className="text-xs text-amber-900/80">
+          Nothing uncertain is guessed. Pick a name, edit, or dismiss.
         </p>
       </div>
 
@@ -106,40 +106,28 @@ export const ReviewList: React.FC<ReviewListProps> = ({
         {items.map((item) => (
           <div
             key={item.id}
-            className="p-3 bg-white rounded-lg border border-amber-200/80 shadow-2xs space-y-2 text-sm"
+            className="p-3 bg-white rounded-lg border border-stone-200/80 shadow-2xs space-y-2 text-sm"
           >
-            {/* Header: Badge & Description */}
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="px-2 py-0.5 rounded-md bg-amber-100/80 text-amber-900 font-medium text-xs">
-                  {getBadgeLabel(item.reason)}
-                </span>
-                <span className="text-xs text-stone-600">
-                  {item.reasonDescription}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => onDismiss(item.id)}
-                className="text-stone-400 hover:text-stone-700 p-1 rounded hover:bg-stone-100 text-xs flex items-center gap-1 transition-colors"
-                title="Dismiss item"
-                aria-label="Dismiss item"
-              >
-                <X className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline text-[11px]">Dismiss</span>
-              </button>
+            {/* Header: Reason badge & description */}
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="px-2 py-0.5 rounded bg-amber-100/90 text-amber-900 font-semibold text-xs">
+                {getBadgeLabel(item.reason)}
+              </span>
+              <span className="text-xs text-stone-600">
+                {item.reasonDescription}
+              </span>
             </div>
 
-            {/* Original Text display */}
-            <div className="px-2.5 py-1.5 bg-stone-50 border border-stone-200/60 rounded font-mono text-xs text-stone-800 break-all select-text">
+            {/* Original Text fragment */}
+            <div className="px-3 py-1.5 bg-stone-50 border border-stone-200/70 rounded font-mono text-xs text-stone-900 break-all select-text">
               {item.originalText}
             </div>
 
-            {/* Conflict Resolution Buttons */}
+            {/* Conflict Resolution Choices */}
             {item.reason === 'conflicting_display_names' && item.associatedRecipientId && (
-              <div className="space-y-1.5 pt-0.5">
-                <div className="text-xs text-stone-600">
-                  Choose which display name to use for <span className="font-mono font-medium text-stone-900">{item.suggestedEmail}</span>:
+              <div className="space-y-2 pt-0.5">
+                <div className="text-xs text-stone-700">
+                  Select name for <span className="font-mono font-semibold text-stone-900">{item.suggestedEmail}</span>:
                 </div>
                 <div className="flex flex-wrap gap-1.5">
                   {item.displayNameOptions?.map((nameOption) => (
@@ -147,7 +135,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                       key={nameOption}
                       type="button"
                       onClick={() => onResolveDisplayName(item.id, item.associatedRecipientId!, nameOption)}
-                      className="px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-800 text-xs font-medium border border-stone-200 transition-colors flex items-center gap-1.5"
+                      className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 active:bg-stone-300 text-stone-800 text-xs font-medium border border-stone-200 transition-colors flex items-center gap-1.5"
                     >
                       <User className="w-3 h-3 text-stone-500" />
                       <span>{nameOption}</span>
@@ -156,30 +144,37 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                   <button
                     type="button"
                     onClick={() => onResolveDisplayName(item.id, item.associatedRecipientId!, '')}
-                    className="px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs border border-stone-200 transition-colors"
+                    className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs border border-stone-200 transition-colors"
                   >
                     Address only
                   </button>
                   <button
                     type="button"
                     onClick={() => startEditing(item)}
-                    className="px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs border border-stone-200 transition-colors flex items-center gap-1"
+                    className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs border border-stone-200 transition-colors flex items-center gap-1"
                   >
-                    <Edit3 className="w-3 h-3" />
+                    <Edit3 className="w-3 h-3 text-stone-500" />
                     <span>Custom name...</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onDismiss(item.id)}
+                    className="px-2.5 py-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 text-xs transition-colors ml-auto"
+                  >
+                    Dismiss
                   </button>
                 </div>
               </div>
             )}
 
-            {/* General Resolution actions for broken / malformed / unparsed */}
+            {/* General Actions for Broken / Malformed / Uncertain */}
             {item.reason !== 'conflicting_display_names' && editingItemId !== item.id && (
               <div className="flex flex-wrap items-center gap-2 pt-0.5">
                 {item.suggestedEmail && (
                   <button
                     type="button"
                     onClick={() => handleQuickAdd(item)}
-                    className="px-2.5 py-1 rounded-md bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium transition-colors flex items-center gap-1.5"
+                    className="px-2.5 py-1 rounded bg-stone-900 hover:bg-stone-800 text-white text-xs font-medium transition-colors flex items-center gap-1.5"
                   >
                     <Check className="w-3 h-3" />
                     <span>
@@ -191,16 +186,16 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                 <button
                   type="button"
                   onClick={() => startEditing(item)}
-                  className="px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs border border-stone-200 transition-colors flex items-center gap-1"
+                  className="px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs border border-stone-200 transition-colors flex items-center gap-1"
                 >
-                  <Edit3 className="w-3 h-3" />
+                  <Edit3 className="w-3 h-3 text-stone-500" />
                   <span>Edit & Add...</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => onDismiss(item.id)}
-                  className="px-2.5 py-1 rounded-md bg-stone-100 hover:bg-stone-200 text-stone-600 text-xs transition-colors"
+                  className="px-2.5 py-1 rounded text-stone-500 hover:text-stone-800 hover:bg-stone-100 text-xs transition-colors"
                 >
                   Dismiss
                 </button>
@@ -214,11 +209,11 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                   e.preventDefault();
                   handleCustomSubmit(item);
                 }}
-                className="p-3 bg-stone-50 border border-stone-200 rounded-md space-y-2 mt-2"
+                className="p-3 bg-stone-50 border border-stone-200 rounded-lg space-y-2.5 mt-2"
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   <div>
-                    <label className="block text-[11px] font-medium text-stone-600 mb-1">
+                    <label className="block text-xs font-medium text-stone-700 mb-1">
                       Display Name (Optional)
                     </label>
                     <input
@@ -226,12 +221,12 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                       value={customName}
                       onChange={(e) => setCustomName(e.target.value)}
                       placeholder="e.g. Jane Doe"
-                      className="w-full px-2.5 py-1 bg-white border border-stone-300 rounded text-xs text-stone-900 focus:outline-hidden focus:ring-1 focus:ring-stone-900"
+                      className="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded text-xs text-stone-900 focus:outline-hidden focus:ring-1 focus:ring-stone-900"
                     />
                   </div>
                   {item.reason !== 'conflicting_display_names' && (
                     <div>
-                      <label className="block text-[11px] font-medium text-stone-600 mb-1">
+                      <label className="block text-xs font-medium text-stone-700 mb-1">
                         Email Address
                       </label>
                       <input
@@ -243,7 +238,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                         }}
                         placeholder="e.g. jane@example.com"
                         required
-                        className="w-full px-2.5 py-1 bg-white border border-stone-300 rounded text-xs text-stone-900 focus:outline-hidden focus:ring-1 focus:ring-stone-900 font-mono"
+                        className="w-full px-2.5 py-1.5 bg-white border border-stone-300 rounded text-xs text-stone-900 focus:outline-hidden focus:ring-1 focus:ring-stone-900 font-mono"
                       />
                     </div>
                   )}
@@ -263,7 +258,7 @@ export const ReviewList: React.FC<ReviewListProps> = ({
                       setEditingItemId(null);
                       setValidationError(null);
                     }}
-                    className="px-2.5 py-1 rounded bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs"
+                    className="px-2.5 py-1 rounded bg-stone-200 hover:bg-stone-300 text-stone-700 text-xs font-medium"
                   >
                     Cancel
                   </button>
