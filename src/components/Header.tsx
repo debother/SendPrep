@@ -4,7 +4,7 @@ import { Send, Shield } from 'lucide-react';
 export const Header: React.FC = () => {
   return (
     <header className="border-b border-stone-200/80 bg-white/80 backdrop-blur-xs sticky top-0 z-20">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-stone-900 text-stone-100 flex items-center justify-center shadow-2xs">
             <Send className="w-3.5 h-3.5 transform -rotate-12 translate-x-px" />
@@ -21,8 +21,8 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-stone-100/80 border border-stone-200/60 text-[11px] text-stone-600 font-medium">
-          <Shield className="w-3 h-3 text-stone-500" />
+        <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-stone-100/80 border border-stone-200/60 text-xs text-stone-600 font-medium">
+          <Shield className="w-3.5 h-3.5 text-stone-500" />
           <span>Local only · In-memory</span>
         </div>
       </div>
